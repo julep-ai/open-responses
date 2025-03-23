@@ -1,0 +1,37 @@
+{
+  "name": "open-responses",
+  "version": "0.1.1",
+  "description": "CLI for setting up a self-hosted alternative to OpenAI's Responses API",
+  "bin": {
+    "open-responses": "./bin/open-responses"
+  },
+  "files": [
+    "bin/open-responses-linux",
+    "bin/open-responses-macos",
+    "bin/open-responses-win.exe",
+    "bin/open-responses"
+  ],
+  "scripts": {
+    "build": "go build -o bin/open-responses main.go",
+    "build:all": "GOOS=linux GOARCH=amd64 go build -o bin/open-responses-linux main.go && GOOS=darwin GOARCH=amd64 go build -o bin/open-responses-macos main.go && GOOS=windows GOARCH=amd64 go build -o bin/open-responses-win.exe main.go",
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/julep-ai/open-responses.git"
+  },
+  "keywords": [
+    "openai",
+    "responses-api",
+    "docker",
+    "compose",
+    "api",
+    "llm"
+  ],
+  "author": "Julep AI",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/julep-ai/open-responses/issues"
+  },
+  "homepage": "https://github.com/julep-ai/open-responses#readme"
+}

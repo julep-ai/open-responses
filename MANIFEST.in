@@ -1,0 +1,3 @@
+include open_responses/bin/open-responses-linux
+include open_responses/bin/open-responses-macos
+include open_responses/bin/open-responses-win.exe
