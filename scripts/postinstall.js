@@ -24,7 +24,42 @@ const sourcePath = path.join(__dirname, '..', 'bin', binaryName);
 const destPath = path.join(__dirname, '..', 'bin', 'open-responses');
 const destPathWithExt = platform === 'win32' ? `${destPath}.exe` : destPath;
 
+// Check if bin directory exists, if not create it
+const binDir = path.join(__dirname, '..', 'bin');
+if (!fs.existsSync(binDir)) {
+  fs.mkdirSync(binDir, { recursive: true });
+}
+
 try {
+  // Check if source binary exists
+  if (!fs.existsSync(sourcePath)) {
+    console.warn(`Platform-specific binary not found: ${sourcePath}`);
+    console.warn('You may need to build the binaries first with: npm run build:all');
+    
+    // Create shell script wrapper if missing
+    if (!fs.existsSync(destPath)) {
+      const shellScript = `#!/bin/sh
+SCRIPT_DIR=$(dirname "$0")
+PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+
+case "$PLATFORM" in
+    linux*)     BINARY="open-responses-linux" ;;
+    darwin*)    BINARY="open-responses-macos" ;;
+    msys*|mingw*|cygwin*|windows*) BINARY="open-responses-win.exe" ;;
+    *)          echo "Unsupported platform: $PLATFORM" >&2; exit 1 ;;
+esac
+
+exec "$SCRIPT_DIR/$BINARY" "$@"
+`;
+      fs.writeFileSync(destPath, shellScript);
+      fs.chmodSync(destPath, 0o755);
+      console.log('Created shell script wrapper');
+    }
+    
+    // Exit gracefully
+    return;
+  }
+
   // Copy the platform-specific binary to the generic name
   fs.copyFileSync(sourcePath, destPathWithExt);
   
