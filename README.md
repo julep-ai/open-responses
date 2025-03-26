@@ -2,6 +2,8 @@
 
 A CLI tool for setting up a self-hosted alternative to OpenAI's Responses API. This API lets you create and manage open-ended AI responses for your applications, similar to OpenAI's Responses API, but fully under your control.
 
+> The Open Repsonse API is built on top of the [Julep](https://github.com/julep-ai/julep). To learn more about the Julep, please refer to the [Julep Documentation](https://docs.julep.ai).
+
 ## Features
 
 - Easy setup with Docker Compose
