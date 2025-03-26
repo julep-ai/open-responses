@@ -12,7 +12,14 @@ A CLI tool for setting up a self-hosted alternative to OpenAI's Responses API. T
 
 ## Installation
 
-You can install this CLI using either npm or pip:
+You can install this CLI using Go, npm, or Python:
+
+### Using Go
+
+```bash
+go install github.com/julep-ai/open-responses@latest
+open-responses
+```
 
 ### Using npm
 
@@ -27,17 +34,30 @@ npm install -g open-responses
 open-responses
 ```
 
-### Using pip
+Or with bunx:
 
 ```bash
+bunx open-responses
+```
+
+### Using Python
+
+```bash
+pipx install open-responses
 pipx open-responses
 ```
 
-Or install it globally:
+Or install with pip globally:
 
 ```bash
 pip install open-responses
 open-responses
+```
+
+Or with uv:
+
+```bash
+uvx open-responses
 ```
 
 ## Usage
