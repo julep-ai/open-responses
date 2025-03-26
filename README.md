@@ -128,11 +128,19 @@ The CLI provides easy-to-use commands for common operations:
 open-responses start
 ```
 
-This user-friendly command is an alias for `open-responses compose up -d` that:
+This user-friendly command:
 
-- Starts all services in detached mode (background)
+- Pulls Docker images for your specific architecture
+- Starts all services in foreground mode with log streaming
+- Automatically stops all services when you press Ctrl+C
 - Shows the status of services after startup
 - Displays access URLs for the API and admin UI
+
+To run in detached mode (background):
+
+```bash
+open-responses start --background
+```
 
 #### Stopping the service
 

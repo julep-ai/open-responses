@@ -46,7 +46,7 @@ type Config struct {
 
 const (
 	configFileName = "open-responses.json" // Name of the configuration file
-	version        = "0.1.5"               // Current CLI version
+	version        = "0.1.6"               // Current CLI version
 )
 
 // CLAUDE-note-root-cmd: Command structure definitions - Root command and CLI entrypoint (~23 lines)
@@ -103,24 +103,28 @@ Example:
 // startCmd provides a simplified interface for starting the services
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Start the Responses API service (alias for 'compose up -d')",
-	Long: `Start the Responses API service in detached mode.
+	Short: "Start the Responses API service and stream logs",
+	Long: `Start the Responses API service.
 
-This is a user-friendly alias for 'open-responses compose up -d' that starts
-all services in the background with sensible defaults. The command will:
-
+By default, this command will:
 1. Start all services defined in responses-compose.yaml
-2. Run in detached mode (services run in the background)
+2. Stream logs from the API service (press Ctrl+C to stop services)
 3. Show the status of running services after startup
 4. Display access URLs for the API and admin UI
 
+Use the --background flag to start services in detached mode.
+
 For more advanced options, use 'open-responses compose up' with additional flags.
 
-Example:
+Examples:
+  # Start all services and stream logs (press Ctrl+C to stop):
+  open-responses start
+
   # Start all services in the background:
-  open-responses start`,
+  open-responses start --background`,
 	Run: func(cmd *cobra.Command, args []string) {
-		startService()
+		background, _ := cmd.Flags().GetBool("background")
+		startService(background)
 	},
 }
 
@@ -651,6 +655,7 @@ func init() {
 	rootCmd.AddCommand(rootConfigCmd)
 
 	// Add new user-friendly commands to root
+	startCmd.Flags().Bool("background", false, "Run services in the background instead of streaming logs")
 	rootCmd.AddCommand(startCmd)
 	rootCmd.AddCommand(rootStopCmd)
 	rootCmd.AddCommand(statusCmd)
@@ -1794,33 +1799,55 @@ func executeDockerComposeWithArgs(command string, args []string) {
 
 // CLAUDE-note-user-friendly-implementations: Implementation of user-friendly command functions
 
-// startService is a user-friendly wrapper for 'compose up -d'
+// startService is a user-friendly wrapper for 'compose up'
 // This function provides a streamlined interface to start services with optimal defaults
-func startService() {
+// When background is true, it runs in detached mode; otherwise it streams logs from the API service
+func startService(background bool) {
 	// Get configuration path for informational output
 	_, configPath := checkConfigExists()
 
 	// Inform the user which configuration we're using
 	fmt.Printf("Starting services with configuration from %s\n", configPath)
 
-	// Execute Docker Compose "up" command with detached mode flag
-	// We always run in detached mode for this user-friendly command
+	// Ensure platform-specific images are pulled correctly
+	// Use 'docker compose pull' command to get the correct architecture
+	fmt.Println("Pulling Docker images for your architecture...")
+	executeDockerComposeWithArgs("pull", []string{})
+
 	fmt.Println("Starting Responses API services...")
-	executeDockerComposeWithArgs("up", []string{"-d"})
 
-	// Show a divider to separate the command output from the status
-	fmt.Println("\n-------------------------------------------------------------")
+	if background {
+		// Run in detached mode if --background flag is provided
+		executeDockerComposeWithArgs("up", []string{"-d"})
 
-	// Give containers a moment to initialize
-	time.Sleep(2 * time.Second)
+		// Show a divider to separate the command output from the status
+		fmt.Println("\n-------------------------------------------------------------")
 
-	// Show service status after starting
-	showServiceStatus()
+		// Give containers a moment to initialize
+		time.Sleep(2 * time.Second)
 
-	// Show access information
-	fmt.Printf("\n🚀 Responses API is now running!\n")
-	fmt.Printf("API available at: http://%s:%s\n", config.Host, config.Environment["RESPONSES_API_PORT"])
-	fmt.Printf("Admin UI available at: http://%s:%s\n", config.Host, config.Port)
+		// Show service status after starting
+		showServiceStatus()
+
+		// Show access information
+		fmt.Printf("\n🚀 Responses API is now running!\n")
+		fmt.Printf("API available at: http://%s:%s\n", config.Host, config.Environment["RESPONSES_API_PORT"])
+		fmt.Printf("Admin UI available at: http://%s:%s\n", config.Host, config.Port)
+	} else {
+		// Run in foreground mode (default) and stream logs from API service
+		// Note: This will block until Ctrl+C is pressed, which will also stop the services
+		fmt.Println("Starting services and streaming logs from API service...")
+		fmt.Println("Press Ctrl+C to stop services")
+
+		// Start in foreground mode
+		executeDockerComposeWithArgs("up", []string{})
+
+		// Note: The above command will block until Ctrl+C is pressed
+		// When user presses Ctrl+C, the command will terminate and return here
+
+		// We don't need to explicitly stop services as Ctrl+C already does that
+		fmt.Println("\nServices stopped")
+	}
 }
 
 // stopRootService is a user-friendly wrapper for 'compose down'
