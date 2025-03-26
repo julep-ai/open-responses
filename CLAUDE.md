@@ -1,25 +1,36 @@
 # CLAUDE.md - Guidelines for Agentic Coding in this Repository
 
+<!-- CLAUDE-note-overview: Project overview and purpose (~5 lines) -->
+
 ## Project Overview
+
 - **Purpose**: CLI tool for setting up a self-hosted alternative to OpenAI's Responses API
 - **Key Components**: Docker Compose service with API server, database, and management UI
 - **API Compatibility**: Implements compatible endpoints with OpenAI's Responses API
 - **Configuration Management**: Uses open-responses.json to track setup state and configuration
 
+<!-- CLAUDE-note-build: Build commands and installation (~5 lines) -->
+
 ## Build Commands
+
 - `npm run build` - Build for current platform
 - `npm run build:all` - Build for all platforms (Linux, macOS, Windows)
 - `pip install -e .` - Install Python package in development mode
 - `python -m build` - Build Python package
 
+<!-- CLAUDE-note-code-style: Code style guidelines for Go, Python, and JavaScript (~15 lines) -->
+
 ## Code Style Guidelines
+
 - **Go**: Follow standard Go conventions
+
   - Use Cobra for CLI commands
   - Handle errors with detailed messages and proper exit codes
   - Group functions by functionality
   - Naming: camelCase for variables, PascalCase for exported functions
 
 - **Python**: Follow PEP 8 conventions
+
   - Use docstrings for function documentation
   - Handle exceptions with try/except blocks
   - Use absolute imports
@@ -28,7 +39,10 @@
   - Handle errors with try/catch blocks
   - Use proper process exit codes
 
+<!-- CLAUDE-note-structure: Project structure and dependencies (~15 lines) -->
+
 ## Project Structure
+
 - Hybrid Go/Python/Node.js project
 - Go core with platform-specific binary distribution
 - Python and Node.js wrappers for package distribution
@@ -36,10 +50,14 @@
 - Cross-platform compatibility is essential
 
 ## Dependencies
+
 - Go: github.com/spf13/cobra, github.com/AlecAivazis/survey/v2
 - No external dependencies for Python/JavaScript wrappers
 
+<!-- CLAUDE-note-config-system: Configuration system implementation details (~10 lines) -->
+
 ## Configuration System Implementation
+
 - **Configuration File**: `open-responses.json` stores CLI configuration and environment variables
 - **Setup Check**: All commands (except `setup`) verify configuration exists before running
 - **Multi-location Search**: Configuration is searched for in:
@@ -50,21 +68,25 @@
 - **Setup Process**: Interactive prompts collect required settings and create config
 - **Update Process**: When run with existing config, preserves previous values as defaults
 
+<!-- CLAUDE-note-config-schema: Configuration schema with JSON example (~25 lines) -->
+
 ## Configuration Schema
+
 ```json
 {
-  "version": "0.1.0",              // CLI version
-  "createdAt": "2025-03-23T...",   // ISO timestamp of creation (camelCase format)
-  "updatedAt": "2025-03-23T...",   // ISO timestamp of last update (camelCase format)
-  "created_at": "2025-03-23T...",  // ISO timestamp of creation (snake_case format)
-  "updated_at": "2025-03-23T...",  // ISO timestamp of last update (snake_case format)
-  "host": "127.0.0.1",             // API host address
-  "port": "8080",                  // API port 
+  "version": "0.1.0", // CLI version
+  "createdAt": "2025-03-23T...", // ISO timestamp of creation (camelCase format)
+  "updatedAt": "2025-03-23T...", // ISO timestamp of last update (camelCase format)
+  "created_at": "2025-03-23T...", // ISO timestamp of creation (snake_case format)
+  "updated_at": "2025-03-23T...", // ISO timestamp of last update (snake_case format)
+  "host": "127.0.0.1", // API host address
+  "port": "8080", // API port
   "docker_tag": "latest_responses", // Docker image tag to use
   "base_compose_uri": "https://u.julep.ai/responses-compose.yaml", // Template source
-  "env_file": "/path/to/.env",     // Path to .env file
-  "api_version": "0.0.1",          // API compatibility version
-  "environment": {                 // Environment variables
+  "env_file": "/path/to/.env", // Path to .env file
+  "api_version": "0.0.1", // API compatibility version
+  "environment": {
+    // Environment variables
     "API_PORT": "3000",
     "API_KEY": "sk-open-responses-default-key",
     "RESPONSE_TIMEOUT": "300",
@@ -77,108 +99,7 @@
 
 Note: The configuration supports both camelCase (`createdAt`, `updatedAt`) and snake_case (`created_at`, `updated_at`) timestamp formats for backward compatibility.
 
-## Docker Compose Implementation
-- **Template Source**: Can be loaded from a URL or local file
-- **Fallback Mechanism**: Uses built-in default template if specified source is unavailable
-- **Environment Variables**: All settings are injected from config and .env file
-- **Container Images**: Uses specified docker_tag for versioning
-- **Command Compatibility**: Supports both Docker Compose V1 and V2 command formats
-- **Version Check**: Verifies Docker Compose V2 is ≥ 2.21.0 for compatibility
-- **Command Proxy**: Up and down commands pass through all arguments to Docker Compose
-- **Version Detection**: Auto-detects installed Docker Compose version
-- **Helpful Error Messages**: Provides informative error messages with installation instructions
-- **Resource Management**: Configures appropriate CPU and memory limits for services
-- **Health Checks**: Implements service health monitoring for proper startup sequencing
-- **Performance Tuning**: Applies database and cache optimizations for improved reliability
-- **Container Labels**: Adds metadata labels for easier container management
-
-## Docker Compose Configuration Details
-
-The default Docker Compose configuration includes the following optimizations:
-
-### API Service
-```yaml
-api:
-  # Resource Limits
-  deploy:
-    resources:
-      limits:
-        cpus: '1.0'
-        memory: 2G
-      reservations:
-        cpus: '0.25'
-        memory: 512M
-  # Health Monitoring
-  healthcheck:
-    test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
-    interval: 30s
-    timeout: 10s
-    retries: 3
-    start_period: 15s
-  # Configuration
-  environment:
-    # Rate Limiting
-    - RATE_LIMIT_WINDOW=60000
-    - RATE_LIMIT_MAX=100
-    # Request Handling
-    - REQUEST_TIMEOUT=120000
-    - MAX_PAYLOAD_SIZE=10mb
-    # Logging
-    - LOG_LEVEL=info
-    - NODE_ENV=production
-```
-
-### Database Service
-```yaml
-db:
-  # Resource Limits
-  deploy:
-    resources:
-      limits:
-        cpus: '1.0'
-        memory: 1G
-      reservations:
-        cpus: '0.1'
-        memory: 256M
-  # Health Monitoring
-  healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U postgres"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
-    start_period: 10s
-  # Performance Tuning
-  command: ["postgres", "-c", "max_connections=100", "-c", "shared_buffers=256MB"]
-```
-
-### Memory Service (Redis)
-```yaml
-memory:
-  # Memory Management
-  command: redis-server --requirepass ${MEMORY_STORE_PASSWORD} --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
-  # Resource Limits
-  deploy:
-    resources:
-      limits:
-        cpus: '0.5'
-        memory: 768M
-      reservations:
-        cpus: '0.1'
-        memory: 128M
-  # Health Monitoring
-  healthcheck:
-    test: ["CMD", "redis-cli", "-a", "${MEMORY_STORE_PASSWORD}", "ping"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
-    start_period: 5s
-```
-
-### Service Dependencies
-The configuration implements proper service dependency management:
-- The API service depends on both database and memory services
-- Dependencies are defined with health checks to ensure services are truly ready
-- The UI service depends on the API service to ensure proper startup sequence
+<!-- CLAUDE-note-env-organization: Environment variable organization with example (~45 lines) -->
 
 ## Environment Variable Organization
 
@@ -227,33 +148,118 @@ ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
 This organization provides:
+
 1. Clear sections for different types of configuration
 2. Helpful comments for users to understand settings
 3. Logical grouping of related environment variables
 4. Default values that work well for most deployments
 5. Optional settings clearly marked with comments
 
+<!-- CLAUDE-note-markers: Code navigation with marker comments system (~50 lines) -->
+
+## Code Navigation with Marker Comments
+
+The main.go file contains special marker comments to help with navigation and understanding key sections. These markers follow this format:
+
+```
+// CLAUDE-{type}-{descriptor}: Brief description (~XX lines)
+```
+
+Where:
+
+- `{type}` can be `note` (for important sections to understand), `todo` (for improvement suggestions), or `warning` (for areas that need caution)
+- `{descriptor}` is a descriptive identifier using kebab-case that summarizes the section (e.g., "data-structs", "setup-config")
+- Each marker includes an approximate line count for the section (e.g., "~30 lines")
+
+### Using Markers for Navigation
+
+When working with main.go or other large files:
+
+1. **First step when exploring a new file**: Search for `CLAUDE-` markers to get an overview of key areas
+2. **Navigating complex code**: Jump between related markers to understand connected functionality
+3. **Understanding the codebase structure**: Use markers to identify logical groupings
+
+### Current Markers in main.go
+
+```
+CLAUDE-note-data-structs: Core data structures for environment configuration and CLI setup (~30 lines)
+CLAUDE-note-root-cmd: Command structure definitions - Root command and CLI entrypoint (~23 lines)
+CLAUDE-note-setup-cmd: Setup command - Primary configuration initialization workflow (~10 lines)
+CLAUDE-note-lifecycle-cmds: Service lifecycle management commands - Up, Stop, Down for controlling services (~84 lines)
+CLAUDE-note-monitor-cmds: Service monitoring commands - Logs, PS, Top, Stats for observing service state (~138 lines)
+CLAUDE-note-interact-cmds: Container interaction commands - Exec, Run for executing code in containers (~67 lines)
+CLAUDE-note-config-cmds: Configuration management commands - Config for inspecting compose setup (~72 lines)
+CLAUDE-todo-cmd-groups: Consider grouping command registration by functionality categories (~18 lines)
+CLAUDE-note-setup-config: Configuration creation and management - Central setup function (~112 lines)
+CLAUDE-note-env-vars: Environment variable definitions with validation and defaults (~80 lines)
+CLAUDE-note-env-file: Environment file generation with structured sections (~110 lines)
+CLAUDE-note-compose-template: Docker Compose template handling with fallback mechanisms (~80 lines)
+CLAUDE-note-compose-versions: Docker Compose version detection and compatibility checking (~144 lines)
+CLAUDE-note-compose-exec: Docker Compose command execution abstraction layer (~24 lines)
+CLAUDE-todo-validation: Consider extracting prerequisite checks to a separate validation function (~84 lines)
+```
+
+The approximate line counts help you determine how many lines to view after each marker, making it easier to read complete logical sections without unnecessary scrolling.
+
+### Current Markers in CLAUDE.md
+
+CLAUDE.md also contains marker comments for easier navigation:
+
+```
+<!-- CLAUDE-note-overview: Project overview and purpose (~5 lines) -->
+<!-- CLAUDE-note-build: Build commands and installation (~5 lines) -->
+<!-- CLAUDE-note-code-style: Code style guidelines for Go, Python, and JavaScript (~15 lines) -->
+<!-- CLAUDE-note-structure: Project structure and dependencies (~15 lines) -->
+<!-- CLAUDE-note-config-system: Configuration system implementation details (~10 lines) -->
+<!-- CLAUDE-note-config-schema: Configuration schema with JSON example (~25 lines) -->
+<!-- CLAUDE-note-compose-impl: Docker Compose implementation features (~15 lines) -->
+<!-- CLAUDE-note-compose-config: Docker Compose configuration details with service examples (~85 lines) -->
+<!-- CLAUDE-note-env-organization: Environment variable organization with example (~45 lines) -->
+<!-- CLAUDE-note-markers: Code navigation with marker comments system (~50 lines) -->
+<!-- CLAUDE-note-compose-compat: Docker Compose V1/V2 compatibility details (~65 lines) -->
+```
+
+### Adding New Markers
+
+When modifying very long files or adding complex functionality:
+
+1. Add appropriate marker comments for any new sections or major changes
+2. Use consistent naming and numbering (increment from the highest existing number)
+3. Keep descriptions brief (1-2 lines) but informative
+4. Include approximate line count information for each section (~XX lines)
+5. Prioritize marking code that's complex, important, or likely to need future maintenance
+6. For any file over 500 lines, consider adding marker comments to help with navigation
+7. When exploring large files, first use GrepTool to find markers (e.g., pattern "CLAUDE-")
+8. When viewing a marked section, use the line count to set an appropriate limit parameter
+
+<!-- CLAUDE-note-compose-compat: Docker Compose V1/V2 compatibility details (~65 lines) -->
+
 ## Docker Compose V1/V2 Compatibility
+
 The `open-responses` CLI seamlessly handles both Docker Compose V1 (standalone binary) and V2 (Docker plugin) formats:
 
 1. **Detection Strategy**:
+
    - First tries `docker compose version` to check for V2
    - Falls back to looking for `docker-compose` in PATH for V1
    - Displays appropriate error messages if neither is found
 
 2. **Command Format Mapping**:
+
    - V2: `docker compose <command> [args...]`
    - V1: `docker-compose <command> [args...]`
 
 3. **Command Abstraction**:
+
    - Uses `executeDockerComposeCommand()` helper to dynamically select correct format
    - Automatically passes through all command-line arguments
 
 4. **Proxy Command Implementation**:
+
    - All common Docker Compose commands are available as direct proxies with argument passthrough:
      - `up`: Create and start containers
      - `down`: Stop and remove containers, networks, and optionally volumes
-     - `logs`: View output from containers 
+     - `logs`: View output from containers
      - `ps`: List containers
      - `build`: Build or rebuild services
      - `restart`: Restart service containers
@@ -267,6 +273,7 @@ The `open-responses` CLI seamlessly handles both Docker Compose V1 (standalone b
    - Each command validates prerequisites, loads configuration, and passes through all flags and arguments
 
 5. **Examples**:
+
    ```
    # User command:                    # Executed as:
    open-responses up -d               # docker compose up -d                  (V2)
@@ -274,22 +281,22 @@ The `open-responses` CLI seamlessly handles both Docker Compose V1 (standalone b
 
    open-responses down -v             # docker compose down -v                (V2)
                                       # docker-compose down -v                (V1)
-                                      
+
    open-responses logs -f api         # docker compose logs -f api            (V2)
                                       # docker-compose logs -f api            (V1)
-                                      
+
    open-responses exec db psql        # docker compose exec db psql           (V2)
                                       # docker-compose exec db psql           (V1)
-                                      
+
    open-responses build --no-cache    # docker compose build --no-cache       (V2)
                                       # docker-compose build --no-cache       (V1)
-                                      
+
    open-responses config --services   # docker compose config --services      (V2)
                                       # docker-compose config --services      (V1)
-                                      
+
    open-responses top api             # docker compose top api                (V2)
                                       # docker-compose top api                (V1)
-                                      
+
    open-responses stats               # docker compose stats                  (V2)
                                       # docker-compose stats                  (V1)
    ```

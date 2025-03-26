@@ -43,6 +43,12 @@ _cgo_gotypes.go
 _cgo_export.*
 _testmain.go
 /go.work
+.go/
+*.out
+/vendor/
+go.work.sum
+/bin/open-responses
+/bin/open-responses-*
 
 # Node.js - Basic (already in original gitignore)
 node_modules/
@@ -54,6 +60,18 @@ lerna-debug.log*
 
 # Docker Compose
 docker-compose.yml
+
+# Downloaded and generated config files
+*.downloaded
+*.example
+responses-compose.yaml
+open-responses.json
+*-test.yaml
+*-test.json
+temp/
+.tmp/
+.test/
+_testing_/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

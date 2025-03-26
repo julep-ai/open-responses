@@ -1,0 +1,47 @@
+# Source code
+*.go
+main.go
+go.mod
+go.sum
+
+# Development files
+.git/
+.github/
+.husky/
+.eslintrc.json
+.prettierrc
+.ruff_cache/
+.vscode/
+.idea/
+
+# Python specific
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+uv.lock
+
+# Tests
+test/
+tests/
+
+# Documentation
+docs/
+
+# Cache files
+.ruff_cache/
+node_modules/

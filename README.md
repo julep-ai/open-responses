@@ -51,6 +51,7 @@ open-responses setup
 ```
 
 This will:
+
 - Ask for configuration settings with default values:
   - Host (default: 127.0.0.1)
   - Port (default: 8080)
@@ -71,11 +72,13 @@ The CLI will automatically check for this configuration before running any other
 ### Configuration File
 
 The CLI stores its configuration in `open-responses.json`, which can be located in:
+
 - The current directory
 - The parent directory
 - The Git repository root directory
 
 The configuration file tracks:
+
 - All user-defined settings
 - Environment variable values
 - Creation and update timestamps (both `camelCase` and `snake_case` formats are supported)
@@ -88,6 +91,7 @@ When you run `setup` again with an existing configuration, it will let you updat
 The API service includes the following configuration options with sensible defaults:
 
 #### Basic Settings
+
 - `HOST`: Host address for the API (default: `127.0.0.1`)
 - `PORT`: Port for the UI service (default: `8080`)
 - `RESPONSES_API_PORT`: Port for the API service (default: `8080`)
@@ -95,6 +99,7 @@ The API service includes the following configuration options with sensible defau
 - `API_VERSION`: API version (default: `0.0.1`)
 
 #### Performance & Limits
+
 - `NODE_ENV`: Node.js environment (default: `production`)
 - `LOG_LEVEL`: Logging level (default: `info`)
 - `REQUEST_TIMEOUT`: API request timeout in ms (default: `120000` - 2 minutes)
@@ -103,6 +108,7 @@ The API service includes the following configuration options with sensible defau
 - `RATE_LIMIT_MAX`: Maximum requests per rate limit window (default: `100`)
 
 #### Resource Allocation
+
 The Docker Compose configuration also includes resource limits to ensure stable operation:
 
 - API Service: 1 CPU, 2GB memory (min: 0.25 CPU, 512MB)
@@ -112,224 +118,171 @@ The Docker Compose configuration also includes resource limits to ensure stable 
 
 These settings provide a good balance for most deployments, but you can adjust them in the `docker-compose.yml` file if needed.
 
-### Starting the service
+### User-Friendly Commands
+
+The CLI provides easy-to-use commands for common operations:
+
+#### Starting the service
 
 ```bash
-open-responses up [flags]
+open-responses start
 ```
 
-This command is a direct proxy to `docker compose up` and accepts all the same flags.
+This user-friendly command is an alias for `open-responses compose up -d` that:
 
-Common examples:
-```bash
-# Start in the foreground with output streaming to the console:
-open-responses up
+- Starts all services in detached mode (background)
+- Shows the status of services after startup
+- Displays access URLs for the API and admin UI
 
-# Start in detached mode (background):
-open-responses up -d
-
-# Force rebuild of all services:
-open-responses up --build --force-recreate
-```
-
-This command will:
-- Verify that Docker and Docker Compose are installed and compatible
-- Check that setup has been completed
-- Start your Responses API service with any provided flags
-- Show the status of running containers (in detached mode)
-- Display access URLs (in detached mode)
-
-### Stopping the service
+#### Stopping the service
 
 ```bash
-open-responses down [flags]
+open-responses stop
 ```
 
-This command is a direct proxy to `docker compose down` and accepts all the same flags.
+This command stops all services and performs cleanup (alias for `open-responses compose down`).
 
-Common examples:
-```bash
-# Stop and remove containers and networks:
-open-responses down
-
-# Stop and remove containers, networks, and volumes:
-open-responses down -v
-```
-
-This command will:
-- Verify that Docker and Docker Compose are installed
-- Check that setup has been completed
-- Stop and remove the Responses API service containers, networks, and optionally volumes
-
-For backward compatibility, the `stop` command is also available, which performs the same function as `down`.
-
-### Additional Docker Compose Commands
-
-The CLI provides proxy commands to all common Docker Compose operations:
-
-#### Viewing Logs
+#### Checking service status
 
 ```bash
-open-responses logs [flags] [SERVICE...]
+open-responses status
 ```
+
+Shows detailed information about all services, including:
+
+- Running state and health status
+- Uptime information
+- Resource usage summary
+- Access URLs
+
+#### Viewing logs
+
+```bash
+open-responses logs [SERVICE]
+```
+
+Shows logs from services with sensible defaults:
+
+- Follows logs in real-time
+- Shows colorized output
+- Displays last 100 lines by default
+- Can target specific services
 
 Examples:
+
 ```bash
-# Show logs from all services:
+# View logs from all services:
 open-responses logs
 
-# Show logs from a specific service:
+# View logs from a specific service:
 open-responses logs api
-
-# Follow log output:
-open-responses logs -f
-
-# Show last 10 lines of logs:
-open-responses logs --tail=10
 ```
 
-#### Listing Containers
+#### Initializing a new project
 
 ```bash
-open-responses ps [flags]
+open-responses init
 ```
 
-Examples:
-```bash
-# List all running containers:
-open-responses ps
+Creates a new project structure with guided setup:
 
-# List all containers, including stopped ones:
-open-responses ps -a
+- Creates directory structure (data, config, logs)
+- Generates helpful documentation files
+- Runs interactive configuration
+- Sets up Docker Compose with best practices
+
+#### Managing API keys
+
+```bash
+open-responses key <action>
 ```
 
-#### Building Services
+Manages API keys for the Responses API service:
 
 ```bash
-open-responses build [flags] [SERVICE...]
+# List all API keys (masked):
+open-responses key list
+
+# Generate a new API key:
+open-responses key generate [type]
+
+# Update an API key:
+open-responses key set <type> [value]
 ```
 
-Examples:
+#### Updating components
+
 ```bash
-# Build all services:
-open-responses build
-
-# Build specific services:
-open-responses build api ui
-
-# Build without using cache:
-open-responses build --no-cache
+open-responses update
 ```
 
-#### Restarting Containers
+Updates all components to the latest version:
+
+- Updates Docker Compose configuration
+- Pulls latest Docker images
+- Backs up your configuration
+
+### Advanced Docker Compose Commands
+
+For more advanced operations, use the compose command group:
 
 ```bash
-open-responses restart [flags] [SERVICE...]
+open-responses compose <command> [args...]
 ```
 
-Examples:
+Available commands include:
+
 ```bash
-# Restart all services:
-open-responses restart
+# Start services with additional options:
+open-responses compose up [flags]
 
-# Restart specific services:
-open-responses restart api
+# Stop and clean up services:
+open-responses compose down [flags]
 
-# Restart with a custom timeout:
-open-responses restart --timeout 30
+# View logs with custom options:
+open-responses compose logs [flags] [SERVICE...]
+
+# List containers:
+open-responses compose ps [flags]
+
+# Build services:
+open-responses compose build [flags] [SERVICE...]
+
+# Restart services:
+open-responses compose restart [flags] [SERVICE...]
+
+# Pull service images:
+open-responses compose pull [flags] [SERVICE...]
+
+# Execute commands in containers:
+open-responses compose exec [flags] SERVICE COMMAND [ARGS...]
+
+# Run one-off commands:
+open-responses compose run [flags] SERVICE COMMAND [ARGS...]
+
+# Validate Docker Compose configuration:
+open-responses compose config [flags]
+
+# View processes in containers:
+open-responses compose top [SERVICE...]
+
+# Monitor resource usage:
+open-responses compose stats [SERVICE...]
 ```
 
-#### Pulling Service Images
+Each compose command is a direct proxy to the equivalent Docker Compose command and accepts all the same flags and arguments. This provides full access to Docker Compose functionality when needed.
+
+For detailed examples of each command, use the `--help` flag:
 
 ```bash
-open-responses pull [flags] [SERVICE...]
+open-responses compose up --help
+open-responses compose logs --help
 ```
 
-Examples:
-```bash
-# Pull all service images:
-open-responses pull
-
-# Pull specific service images:
-open-responses pull api db
-```
-
-#### Executing Commands in Containers
+Or for general help:
 
 ```bash
-open-responses exec [flags] SERVICE COMMAND [ARGS...]
-```
-
-Examples:
-```bash
-# Run an interactive shell in the api service container:
-open-responses exec api sh
-
-# Run a command in a service container:
-open-responses exec db psql -U postgres -d responses
-```
-
-#### Running One-off Commands
-
-```bash
-open-responses run [flags] SERVICE COMMAND [ARGS...]
-```
-
-Examples:
-```bash
-# Run a one-off command in a service:
-open-responses run api python manage.py migrate
-
-# Run an interactive shell in a new container:
-open-responses run --rm api sh
-```
-
-#### Validating Configuration
-
-```bash
-open-responses config [flags]
-```
-
-Examples:
-```bash
-# Validate and display the Docker Compose configuration:
-open-responses config
-
-# Only validate the Docker Compose configuration:
-open-responses config -q
-
-# List the services defined in the Docker Compose file:
-open-responses config --services
-```
-
-#### Viewing Container Processes
-
-```bash
-open-responses top [SERVICE...]
-```
-
-Examples:
-```bash
-# Show processes for all services:
-open-responses top
-
-# Show processes for specific services:
-open-responses top api db
-```
-
-#### Monitoring Resource Usage
-
-```bash
-open-responses stats [SERVICE...]
-```
-
-Examples:
-```bash
-# Show real-time resource usage for all services:
-open-responses stats
-
-# Show resource usage for specific services:
-open-responses stats api
+open-responses --help
 ```
 
 ## API Endpoints
@@ -372,16 +325,19 @@ The service itself runs in Docker containers, providing a compatible alternative
 ### Building from Source
 
 Build for your current platform:
+
 ```bash
 npm run build
 ```
 
 Build for all platforms:
+
 ```bash
 npm run build:all
 ```
 
 This will generate binaries in the `bin/` directory:
+
 - `bin/open-responses-linux`
 - `bin/open-responses-macos`
 - `bin/open-responses-win.exe`
@@ -389,13 +345,59 @@ This will generate binaries in the `bin/` directory:
 ### Installing for Development
 
 For Python:
+
 ```bash
 pip install -e .
 ```
 
 For npm:
+
 ```bash
 npm link
+```
+
+### Development Guidelines
+
+This project follows strict formatting and linting guidelines to maintain code quality. We use:
+
+- **Go**: Standard Go formatting with `go fmt`
+- **Python**: Ruff for linting and formatting
+- **JavaScript**: ESLint and Prettier for linting and formatting
+
+#### Setting Up Development Environment
+
+1. Install development dependencies:
+
+```bash
+# Install JavaScript dependencies
+npm install
+
+# Install Python dependencies
+uv pip install ruff
+
+# Install git hooks for automatic linting/formatting
+npm run install:hooks
+```
+
+2. The git hooks will automatically run formatting and linting checks before each commit.
+
+#### Code Formatting and Linting
+
+You can manually run code formatting and linting using these commands:
+
+```bash
+# Format all code
+npm run format:all
+
+# Lint all code
+npm run lint:all
+
+# Format/lint individual languages
+npm run format       # JavaScript/JSON/Markdown files
+npm run py:format    # Python files
+npm run go:format    # Go files
+npm run lint         # JavaScript files
+npm run py:lint      # Python files
 ```
 
 ## License
