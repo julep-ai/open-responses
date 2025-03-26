@@ -81,7 +81,7 @@
   "updated_at": "2025-03-23T...", // ISO timestamp of last update (snake_case format)
   "host": "127.0.0.1", // API host address
   "port": "8080", // API port
-  "docker_tag": "latest_responses", // Docker image tag to use
+  "docker_tag": "responses-latest", // Docker image tag to use
   "base_compose_uri": "https://u.julep.ai/responses-compose.yaml", // Template source
   "env_file": "/path/to/.env", // Path to .env file
   "api_version": "0.0.1", // API compatibility version
@@ -111,7 +111,7 @@ The `.env` file is organized into logical sections for better readability:
 ## Basic Configuration ##
 HOST=127.0.0.1
 PORT=8080
-DOCKER_TAG=latest_responses
+DOCKER_TAG=responses-latest
 API_VERSION=0.0.1
 
 ## Authentication & Security ##

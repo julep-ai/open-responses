@@ -1,6 +1,6 @@
 {
   "name": "open-responses",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "CLI for setting up a self-hosted alternative to OpenAI's Responses API",
   "bin": {
     "open-responses": "./bin/open-responses"
@@ -22,12 +22,13 @@
     "test": "go test ./test",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
     "lint:fix": "eslint --fix .",
-    "py:lint": "uvx ruff check .",
+    "py:lint": "uvx ruff check --fix --unsafe-fixes .",
     "py:format": "uvx ruff format .",
     "go:format": "go fmt ./...",
     "install:hooks": "bash scripts/install-hooks.sh",
     "lint:all": "npm run lint && npm run py:lint && npm run go:format",
-    "format:all": "npm run format && npm run py:format && npm run go:format"
+    "format:all": "npm run format && npm run py:format && npm run go:format",
+    "update:templates": "python scripts/download_templates.py"
   },
   "repository": {
     "type": "git",

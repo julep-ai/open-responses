@@ -69,6 +69,7 @@ open-responses.json
 *-test.yaml
 *-test.json
 temp/
+tmp/
 .tmp/
 .test/
 _testing_/

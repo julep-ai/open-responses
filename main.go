@@ -46,7 +46,7 @@ type Config struct {
 
 const (
 	configFileName = "open-responses.json" // Name of the configuration file
-	version        = "0.1.4"               // Current CLI version
+	version        = "0.1.5"               // Current CLI version
 )
 
 // CLAUDE-note-root-cmd: Command structure definitions - Root command and CLI entrypoint (~23 lines)
@@ -833,7 +833,7 @@ func setupConfig() {
 			UpdatedTime:    currentTime,
 			Host:           "127.0.0.1",
 			Port:           "8080",
-			DockerTag:      "latest_responses",
+			DockerTag:      "responses-latest",
 			BaseComposeURI: "default", // Use our built-in default template
 			APIVersion:     "0.0.1",
 			Environment:    make(map[string]string),
