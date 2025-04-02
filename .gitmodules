@@ -1,0 +1,3 @@
+[submodule "julep"]
+	path = julep
+	url = https://github.com/julep-ai/julep.git

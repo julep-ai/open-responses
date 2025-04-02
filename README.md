@@ -1,435 +1,167 @@
-# Open Responses CLI
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/0a216411-e689-4b08-97f9-7e3e01ce5afc" alt="Open Responses Logo" width="320"/>
+  <img src="https://github.com/user-attachments/assets/21cff538-e5b8-4c89-b19f-3280f65b2105" alt="Launching Open Responses" width="320"/>
+  <h1>Open Responses</h1>
+  <p><i>Self-hosted, open-source alternative to OpenAI's Responses API</i></p>
+  <p><i>— With ❤️ from the team behind <a href="https://github.com/julep-ai/julep">julep</a></i></p>
+</div>
 
-A CLI tool for setting up a self-hosted alternative to OpenAI's Responses API. This API lets you create and manage open-ended AI responses for your applications, similar to OpenAI's Responses API, but fully under your control.
+<div align="center">
+  <a href="https://docs.julep.ai/responses/quickstart">Documentation</a> •
+  <a href="https://github.com/julep-ai/julep">GitHub</a> •
+  <a href="https://docs.julep.ai/responses/examples">Examples</a>
+</div>
 
-> The Open Repsonse API is built on top of the [Julep](https://github.com/julep-ai/julep). To learn more about the Julep, please refer to the [Julep Documentation](https://docs.julep.ai).
+<br>
 
-## Features
+## 💡 What is Open Responses?
 
-- Easy setup with Docker Compose
-- Compatible API endpoints with OpenAI's Responses API
-- Management UI for creating, viewing, and managing responses
-- Local data storage with PostgreSQL
-- Customizable authentication and timeout settings
+Open Responses lets you run a fully self-hosted version of OpenAI's Responses API. It works seamlessly with any large language model (LLM) provider—whether it's Claude, Qwen, Deepseek R1, Ollama, or others. It's a fully-compatible drop-in replacement for the official API. Swap out OpenAI without changing your existing [Agents SDK](https://platform.openai.com/docs/guides/agents) code.
 
-## Installation
+Just run `npx -y open-responses init` and then:
 
-You can install this CLI using Go, npm, or Python:
+```python
+from openai import AsyncOpenAI
+from agents import set_default_openai_client
+set_default_openai_client(AsyncOpenAI(base_url="http://localhost:8080/"))
 
-### Using Go
-
-```bash
-go install github.com/julep-ai/open-responses@latest
-open-responses
+agent = Agent(name="Test Agent", ...)
+# ...
 ```
 
-### Using npm
+🔥🔥🔥
+
+### What is Responses API?
+
+From [OpenAI docs](https://platform.openai.com/docs/guides/responses-vs-chat-completions) on [Responses API](https://platform.openai.com/docs/api-reference/responses):
+> The Responses API is our newest core API and an agentic API primitive, combining the simplicity of Chat Completions with the ability to do more agentic tasks. > As model capabilities evolve, the Responses API is a flexible foundation for building action-oriented applications, with built-in tools:
+> - Web search
+> - File search
+> - Computer use
+
+You can read about it in more detail on their [announcement blog post](https://openai.com/index/new-tools-for-building-agents/).
+
+*****
+
+> [!TIP]
+> This project is developed by the team behind **[Julep AI](https://julep.ai)**, the open-source platform making it easy for data teams to build, deploy, and scale stateful AI agents and workflows. Check us out on github: [![GitHub Repo stars](https://img.shields.io/github/stars/julep-ai/julep?style=social&label=julep-ai%2Fjulep&link=https%3A%2F%2Fgithub.com%2Fjulep-ai%2Fjulep)
+](https://github.com/julep-ai/julep)
+
+
+## ✨ Why use Open Responses?
+
+- **🔄 Bring Your Own Model** - Compatible with any LLM provider you prefer.
+- **🔒 Privacy First** - Fully self-hosted, giving you total control over your data.
+- **🔌 Easy Switch** - Drop-in replacement compatible with OpenAI’s official Agents SDK.
+- **🚀 Fast Setup** - Get started quickly with Docker or our straightforward CLI.
+- **🛠️ Built-in Tools** - Supports automatic tool calls like web searches using open-source alternatives.
+
+## 🚀 Quick Start
+
+One simple command to get going:
 
 ```bash
-npx open-responses
+npx -y open-responses init
+# or: uvx open-responses init
 ```
 
-Or install it globally:
+## 💻 Quick Examples
+
+### Using the [Agents SDK](https://openai.github.io/openai-agents-python/)
+
+```python
+from openai import AsyncOpenAI
+from agents import set_default_openai_client
+
+# Create and configure the OpenAI client
+custom_client = AsyncOpenAI(base_url="http://localhost:8080/", api_key="YOUR_RESPONSES_API_KEY")
+set_default_openai_client(custom_client)
+
+
+agent = Agent(
+  name="Test Agent",
+  instructions="You are a helpful assistant that provides concise responses."
+  model="openrouter/deepseek/deepseek-r1"
+)
+
+result = await Runner.run(agent, "Hello! Are you working correctly?")
+
+print(result.final_output)
+```
+
+More examples [here](https://docs.julep.ai/responses/examples).
+
+### Using the [OpenAI SDK](https://platform.openai.com/docs/libraries)
+
+#### javascript
+
+```javascript
+import { OpenAI } from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'http://localhost:8080/',
+  apiKey: "RESPONSE_API_KEY"
+});
+
+const response = await client.responses.create({
+  model: "gpt-4o-mini",
+  input: "What's the population of the world today?"
+});
+
+console.log(response.output[0].content[0].text);
+```
+
+More examples [here](https://docs.julep.ai/responses/examples).
+
+#### python
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(
+  base_url="http://localhost:8080/",
+  api_key=os.getenv("RESPONSE_API_KEY")
+)
+
+response = client.responses.create(
+  model="gpt-4o-mini",
+  input="What's the population of the world today?"
+)
+
+print(response.output[0].content[0].text)
+```
+
+More examples [here](https://docs.julep.ai/responses/examples).
+
+
+## 📦 Install Manually
+
+We publish pre-built [docker images](https://hub.docker.com/u/julepai) which you can run using `docker compose` directly.
 
 ```bash
-npm install -g open-responses
-open-responses
+mkdir julep-responses-api
+cd julep-responses-api
+wget https://u.julep.ai/responses-env.example -O .env
+wget https://u.julep.ai/responses-compose.yaml -O docker-compose.yml
+docker compose up --watch
 ```
 
-Or with bunx:
+## 📚 Learn More
 
-```bash
-bunx open-responses
-```
+- [🚀 Quickstart Guide](https://docs.julep.ai/responses/quickstart)
+- [🧠 API Concepts](https://docs.julep.ai/responses/concepts)
+- [📝 Code Examples](https://docs.julep.ai/responses/examples)
+- [💻 CLI Documentation](https://docs.julep.ai/responses/cli)
+- [🔮 Project Roadmap](https://docs.julep.ai/responses/roadmap)
 
-### Using Python
+## 📖 About Julep AI
 
-```bash
-pipx install open-responses
-pipx open-responses
-```
+Open Responses is proudly built by [Julep AI](https://julep.ai)—the open-source platform empowering data and ML teams to rapidly create, deploy, and manage stateful AI workflows and intelligent agents at scale.
 
-Or install with pip globally:
+## 🤝 Contributing
 
-```bash
-pip install open-responses
-open-responses
-```
+We’d love your contributions! Open Responses is licensed under Apache-2.0.
 
-Or with uv:
+[Check out our main project as well](https://github.com/julep-ai/julep)
 
-```bash
-uvx open-responses
-```
-
-## Usage
-
-### First-time Setup
-
-Before using any commands, you must run the setup command:
-
-```bash
-open-responses setup
-```
-
-This will:
-
-- Ask for configuration settings with default values:
-  - Host (default: 127.0.0.1)
-  - Port (default: 8080)
-  - Docker tag (default: latest_responses)
-  - Base Docker Compose URI (default: https://u.julep.ai/responses-compose.yaml)
-  - Environment file location (default: .env in Git root or current directory)
-  - API version (default: 0.0.1)
-- Ask for API configuration values (port, authentication key, timeout)
-- Create a .env file with your settings
-- Download or generate a docker-compose.yml file with the necessary services:
-  - API server
-  - Database
-  - Management UI
-- Create a configuration file (open-responses.json) to track your settings
-
-The CLI will automatically check for this configuration before running any other commands. If the configuration file doesn't exist, it will prompt you to run the setup command first.
-
-### Configuration File
-
-The CLI stores its configuration in `open-responses.json`, which can be located in:
-
-- The current directory
-- The parent directory
-- The Git repository root directory
-
-The configuration file tracks:
-
-- All user-defined settings
-- Environment variable values
-- Creation and update timestamps (both `camelCase` and `snake_case` formats are supported)
-- File locations and version information
-
-When you run `setup` again with an existing configuration, it will let you update your settings while preserving your previous values as defaults. If timestamps are missing from an existing configuration, they'll be added automatically when the configuration is updated.
-
-### API Configuration
-
-The API service includes the following configuration options with sensible defaults:
-
-#### Basic Settings
-
-- `HOST`: Host address for the API (default: `127.0.0.1`)
-- `PORT`: Port for the UI service (default: `8080`)
-- `RESPONSES_API_PORT`: Port for the API service (default: `8080`)
-- `DOCKER_TAG`: Docker image tag (default: `latest_responses`)
-- `API_VERSION`: API version (default: `0.0.1`)
-
-#### Performance & Limits
-
-- `NODE_ENV`: Node.js environment (default: `production`)
-- `LOG_LEVEL`: Logging level (default: `info`)
-- `REQUEST_TIMEOUT`: API request timeout in ms (default: `120000` - 2 minutes)
-- `MAX_PAYLOAD_SIZE`: Maximum request payload size (default: `10mb`)
-- `RATE_LIMIT_WINDOW`: Rate limit window in ms (default: `60000` - 1 minute)
-- `RATE_LIMIT_MAX`: Maximum requests per rate limit window (default: `100`)
-
-#### Resource Allocation
-
-The Docker Compose configuration also includes resource limits to ensure stable operation:
-
-- API Service: 1 CPU, 2GB memory (min: 0.25 CPU, 512MB)
-- Database: 1 CPU, 1GB memory (min: 0.1 CPU, 256MB)
-- Redis: 0.5 CPU, 768MB memory (min: 0.1 CPU, 128MB)
-- UI: 0.5 CPU, 512MB memory (min: 0.1 CPU, 128MB)
-
-These settings provide a good balance for most deployments, but you can adjust them in the `docker-compose.yml` file if needed.
-
-### User-Friendly Commands
-
-The CLI provides easy-to-use commands for common operations:
-
-#### Starting the service
-
-```bash
-open-responses start
-```
-
-This user-friendly command:
-
-- Pulls Docker images for your specific architecture
-- Starts all services in foreground mode with log streaming
-- Automatically stops all services when you press Ctrl+C
-- Shows the status of services after startup
-- Displays access URLs for the API and admin UI
-
-To run in detached mode (background):
-
-```bash
-open-responses start --background
-```
-
-#### Stopping the service
-
-```bash
-open-responses stop
-```
-
-This command stops all services and performs cleanup (alias for `open-responses compose down`).
-
-#### Checking service status
-
-```bash
-open-responses status
-```
-
-Shows detailed information about all services, including:
-
-- Running state and health status
-- Uptime information
-- Resource usage summary
-- Access URLs
-
-#### Viewing logs
-
-```bash
-open-responses logs [SERVICE]
-```
-
-Shows logs from services with sensible defaults:
-
-- Follows logs in real-time
-- Shows colorized output
-- Displays last 100 lines by default
-- Can target specific services
-
-Examples:
-
-```bash
-# View logs from all services:
-open-responses logs
-
-# View logs from a specific service:
-open-responses logs api
-```
-
-#### Initializing a new project
-
-```bash
-open-responses init
-```
-
-Creates a new project structure with guided setup:
-
-- Creates directory structure (data, config, logs)
-- Generates helpful documentation files
-- Runs interactive configuration
-- Sets up Docker Compose with best practices
-
-#### Managing API keys
-
-```bash
-open-responses key <action>
-```
-
-Manages API keys for the Responses API service:
-
-```bash
-# List all API keys (masked):
-open-responses key list
-
-# Generate a new API key:
-open-responses key generate [type]
-
-# Update an API key:
-open-responses key set <type> [value]
-```
-
-#### Updating components
-
-```bash
-open-responses update
-```
-
-Updates all components to the latest version:
-
-- Updates Docker Compose configuration
-- Pulls latest Docker images
-- Backs up your configuration
-
-### Advanced Docker Compose Commands
-
-For more advanced operations, use the compose command group:
-
-```bash
-open-responses compose <command> [args...]
-```
-
-Available commands include:
-
-```bash
-# Start services with additional options:
-open-responses compose up [flags]
-
-# Stop and clean up services:
-open-responses compose down [flags]
-
-# View logs with custom options:
-open-responses compose logs [flags] [SERVICE...]
-
-# List containers:
-open-responses compose ps [flags]
-
-# Build services:
-open-responses compose build [flags] [SERVICE...]
-
-# Restart services:
-open-responses compose restart [flags] [SERVICE...]
-
-# Pull service images:
-open-responses compose pull [flags] [SERVICE...]
-
-# Execute commands in containers:
-open-responses compose exec [flags] SERVICE COMMAND [ARGS...]
-
-# Run one-off commands:
-open-responses compose run [flags] SERVICE COMMAND [ARGS...]
-
-# Validate Docker Compose configuration:
-open-responses compose config [flags]
-
-# View processes in containers:
-open-responses compose top [SERVICE...]
-
-# Monitor resource usage:
-open-responses compose stats [SERVICE...]
-```
-
-Each compose command is a direct proxy to the equivalent Docker Compose command and accepts all the same flags and arguments. This provides full access to Docker Compose functionality when needed.
-
-For detailed examples of each command, use the `--help` flag:
-
-```bash
-open-responses compose up --help
-open-responses compose logs --help
-```
-
-Or for general help:
-
-```bash
-open-responses --help
-```
-
-## API Endpoints
-
-Once your service is running, the following endpoints will be available:
-
-- `POST /v1/responses` - Create a new response
-- `GET /v1/responses/{id}` - Retrieve a response
-- `GET /v1/responses` - List all responses
-- `DELETE /v1/responses/{id}` - Delete a response
-
-You can access the management UI at `http://localhost:8080` (or your configured port).
-
-## Requirements
-
-- Docker must be installed on your system
-- Docker Compose must be installed (either as a standalone binary or integrated plugin)
-  - Docker Compose V2 (≥ 2.21.0) is recommended for best compatibility
-  - Docker Compose V1 is supported but with limited functionality
-- No other runtime dependencies required (no Node.js or Python needed for running the service)
-
-The CLI will check Docker and Docker Compose requirements and provide helpful instructions if they're not met.
-
-## How it works
-
-This CLI is built with Go and compiled to native binaries for Windows, macOS, and Linux.
-When installed via npm or pip, the appropriate binary for your platform is used automatically.
-
-The service itself runs in Docker containers, providing a compatible alternative to OpenAI's Responses API.
-
-## Development
-
-### Project Structure
-
-- `main.go`: Core CLI functionality built with Go
-- `open_responses/__init__.py`: Python wrapper for binary distribution
-- `scripts/postinstall.js`: Node.js script for platform detection and setup
-- `bin/`: Directory for compiled binaries
-
-### Building from Source
-
-Build for your current platform:
-
-```bash
-npm run build
-```
-
-Build for all platforms:
-
-```bash
-npm run build:all
-```
-
-This will generate binaries in the `bin/` directory:
-
-- `bin/open-responses-linux`
-- `bin/open-responses-macos`
-- `bin/open-responses-win.exe`
-
-### Installing for Development
-
-For Python:
-
-```bash
-pip install -e .
-```
-
-For npm:
-
-```bash
-npm link
-```
-
-### Development Guidelines
-
-This project follows strict formatting and linting guidelines to maintain code quality. We use:
-
-- **Go**: Standard Go formatting with `go fmt`
-- **Python**: Ruff for linting and formatting
-- **JavaScript**: ESLint and Prettier for linting and formatting
-
-#### Setting Up Development Environment
-
-1. Install development dependencies:
-
-```bash
-# Install JavaScript dependencies
-npm install
-
-# Install Python dependencies
-uv pip install ruff
-
-# Install git hooks for automatic linting/formatting
-npm run install:hooks
-```
-
-2. The git hooks will automatically run formatting and linting checks before each commit.
-
-#### Code Formatting and Linting
-
-You can manually run code formatting and linting using these commands:
-
-```bash
-# Format all code
-npm run format:all
-
-# Lint all code
-npm run lint:all
-
-# Format/lint individual languages
-npm run format       # JavaScript/JSON/Markdown files
-npm run py:format    # Python files
-npm run go:format    # Go files
-npm run lint         # JavaScript files
-npm run py:lint      # Python files
-```
-
-## License
-
-Apache-2.0
