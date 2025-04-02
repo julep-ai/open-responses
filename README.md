@@ -3,6 +3,7 @@
   <img src="https://github.com/user-attachments/assets/21cff538-e5b8-4c89-b19f-3280f65b2105" alt="Launching Open Responses" width="320"/>
   <h1>Open Responses</h1>
   <p><i>Self-hosted, open-source alternative to OpenAI's Responses API</i></p>
+  <p><i>— With ❤️ from the team behind <a href="https://github.com/julep-ai/julep">julep</a></i></p>
 </div>
 
 <div align="center">
@@ -15,7 +16,32 @@
 
 ## 💡 What is Open Responses?
 
-Open Responses lets you run a fully self-hosted version of OpenAI's Responses API. It works seamlessly with any large language model (LLM) provider—whether it's Claude, Qwen, Deepseek R1, Ollama, or others. Swap out OpenAI without changing your existing Agents SDK integrations.
+Open Responses lets you run a fully self-hosted version of OpenAI's Responses API. It works seamlessly with any large language model (LLM) provider—whether it's Claude, Qwen, Deepseek R1, Ollama, or others. It's a fully-compatible drop-in replacement for the official API. Swap out OpenAI without changing your existing [Agents SDK](https://platform.openai.com/docs/guides/agents) code.
+
+Just run `npx -y open-responses init` and then:
+
+```python
+from openai import AsyncOpenAI
+from agents import set_default_openai_client
+set_default_openai_client(AsyncOpenAI(base_url="http://localhost:8080/"))
+
+agent = Agent(name="Test Agent", ...)
+# ...
+```
+
+🔥🔥🔥
+
+### What is Responses API?
+
+From [OpenAI docs](https://platform.openai.com/docs/guides/responses-vs-chat-completions) on [Responses API](https://platform.openai.com/docs/api-reference/responses):
+> The Responses API is our newest core API and an agentic API primitive, combining the simplicity of Chat Completions with the ability to do more agentic tasks. > As model capabilities evolve, the Responses API is a flexible foundation for building action-oriented applications, with built-in tools:
+> - Web search
+> - File search
+> - Computer use
+
+You can read about it in more detail on their [announcement blog post](https://openai.com/index/new-tools-for-building-agents/).
+
+*****
 
 > [!NOTE]
 > This project is developed by the team behind **[Julep AI](https://julep.ai)**, the open-source platform making it easy for data teams to build, deploy, and scale stateful AI agents and workflows. Check us out on github: [![GitHub Repo stars](https://img.shields.io/github/stars/julep-ai/julep?style=social&label=julep-ai%2Fjulep&link=https%3A%2F%2Fgithub.com%2Fjulep-ai%2Fjulep)
@@ -36,9 +62,12 @@ One simple command to get going:
 
 ```bash
 npx -y open-responses init
+# or: uvx open-responses init
 ```
 
-## 📦 Installation Methods
+## 📦 Install Manually
+
+We publish pre-built [docker images](https://hub.docker.com/u/julepai) which you can run using `docker compose` directly.
 
 ```bash
 mkdir julep-responses-api
@@ -48,17 +77,11 @@ wget https://u.julep.ai/responses-compose.yaml -O docker-compose.yml
 docker compose up --watch
 ```
 
-```bash
-# Using npx
-npx open-responses setup
-npx open-responses start
-
-# Using uv
-uvx open-responses setup
-uvx open-responses start
-```
-
 ## 💻 Quick Examples
+
+### Using the OpenAI SDK
+
+#### javascript
 
 ```javascript
 import { OpenAI } from 'openai';
@@ -75,6 +98,8 @@ const response = await client.responses.create({
 
 console.log(response.output[0].content[0].text);
 ```
+
+#### python
 
 ```python
 import os
