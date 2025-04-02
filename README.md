@@ -43,7 +43,7 @@ You can read about it in more detail on their [announcement blog post](https://o
 
 *****
 
-> [!NOTE]
+> [!TIP]
 > This project is developed by the team behind **[Julep AI](https://julep.ai)**, the open-source platform making it easy for data teams to build, deploy, and scale stateful AI agents and workflows. Check us out on github: [![GitHub Repo stars](https://img.shields.io/github/stars/julep-ai/julep?style=social&label=julep-ai%2Fjulep&link=https%3A%2F%2Fgithub.com%2Fjulep-ai%2Fjulep)
 ](https://github.com/julep-ai/julep)
 
@@ -65,21 +65,33 @@ npx -y open-responses init
 # or: uvx open-responses init
 ```
 
-## 📦 Install Manually
-
-We publish pre-built [docker images](https://hub.docker.com/u/julepai) which you can run using `docker compose` directly.
-
-```bash
-mkdir julep-responses-api
-cd julep-responses-api
-wget https://u.julep.ai/responses-env.example -O .env
-wget https://u.julep.ai/responses-compose.yaml -O docker-compose.yml
-docker compose up --watch
-```
-
 ## 💻 Quick Examples
 
-### Using the OpenAI SDK
+### Using the [Agents SDK](https://openai.github.io/openai-agents-python/)
+
+```python
+from openai import AsyncOpenAI
+from agents import set_default_openai_client
+
+# Create and configure the OpenAI client
+custom_client = AsyncOpenAI(base_url="http://localhost:8080/", api_key="YOUR_RESPONSES_API_KEY")
+set_default_openai_client(custom_client)
+
+
+agent = Agent(
+  name="Test Agent",
+  instructions="You are a helpful assistant that provides concise responses."
+  model="openrouter/deepseek/deepseek-r1"
+)
+
+result = await Runner.run(agent, "Hello! Are you working correctly?")
+
+print(result.final_output)
+```
+
+More examples [here](https://docs.julep.ai/responses/examples).
+
+### Using the [OpenAI SDK](https://platform.openai.com/docs/libraries)
 
 #### javascript
 
@@ -99,6 +111,8 @@ const response = await client.responses.create({
 console.log(response.output[0].content[0].text);
 ```
 
+More examples [here](https://docs.julep.ai/responses/examples).
+
 #### python
 
 ```python
@@ -116,6 +130,21 @@ response = client.responses.create(
 )
 
 print(response.output[0].content[0].text)
+```
+
+More examples [here](https://docs.julep.ai/responses/examples).
+
+
+## 📦 Install Manually
+
+We publish pre-built [docker images](https://hub.docker.com/u/julepai) which you can run using `docker compose` directly.
+
+```bash
+mkdir julep-responses-api
+cd julep-responses-api
+wget https://u.julep.ai/responses-env.example -O .env
+wget https://u.julep.ai/responses-compose.yaml -O docker-compose.yml
+docker compose up --watch
 ```
 
 ## 📚 Learn More
